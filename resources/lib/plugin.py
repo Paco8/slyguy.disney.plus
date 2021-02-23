@@ -26,9 +26,10 @@ def index(**kwargs):
     folder = plugin.Folder(cacheToDisc=False)
 
     if not api.logged_in:
-        folder.add_item(label=_(_.LOGIN, _bold=True),  path=plugin.url_for(login))
+        folder.add_item(label=_(_.LOGIN, _bold=True),  path=plugin.url_for(login), bookmark=False)
     else:
         folder.add_item(label=_(_.FEATURED, _bold=True), path=plugin.url_for(collection, slug='home', content_class='home', label=_.FEATURED))
+        folder.add_item(label=_(_.HUBS, _bold=True),  path=plugin.url_for(hubs))
         folder.add_item(label=_(_.MOVIES, _bold=True),  path=plugin.url_for(collection, slug='movies', content_class='contentType'))
         folder.add_item(label=_(_.SERIES, _bold=True),  path=plugin.url_for(collection, slug='series', content_class='contentType'))
         folder.add_item(label=_(_.ORIGINALS, _bold=True),  path=plugin.url_for(collection, slug='originals', content_class='originals'))
@@ -39,15 +40,15 @@ def index(**kwargs):
             folder.add_item(label=_(_.CONTINUE_WATCHING, _bold=True), path=plugin.url_for(sets, set_id=CONTINUE_WATCHING_SET_ID, set_type=CONTINUE_WATCHING_SET_TYPE))
 
         if settings.getBool('bookmarks', True):
-            folder.add_item(label=_(_.BOOKMARKS, _bold=True),  path=plugin.url_for(plugin.ROUTE_BOOKMARKS))
+            folder.add_item(label=_(_.BOOKMARKS, _bold=True),  path=plugin.url_for(plugin.ROUTE_BOOKMARKS), bookmark=False)
 
         if not userdata.get('kid_lockdown', False):
-            folder.add_item(label=_.SELECT_PROFILE, path=plugin.url_for(select_profile), art={'thumb': userdata.get('avatar')}, info={'plot': userdata.get('profile')}, _kiosk=False)
+            folder.add_item(label=_.SELECT_PROFILE, path=plugin.url_for(select_profile), art={'thumb': userdata.get('avatar')}, info={'plot': userdata.get('profile')}, _kiosk=False, bookmark=False)
             #folder.add_item(label=_.PROFILE_SETTINGS, path=plugin.url_for(profile_settings), art={'thumb': userdata.get('avatar')}, info={'plot': userdata.get('profile')}, _kiosk=False)
 
-        folder.add_item(label=_.LOGOUT, path=plugin.url_for(logout), _kiosk=False)
+        folder.add_item(label=_.LOGOUT, path=plugin.url_for(logout), _kiosk=False, bookmark=False)
 
-    folder.add_item(label=_.SETTINGS, path=plugin.url_for(plugin.ROUTE_SETTINGS), _kiosk=False)
+    folder.add_item(label=_.SETTINGS, path=plugin.url_for(plugin.ROUTE_SETTINGS), _kiosk=False, bookmark=False)
 
     return folder
 
@@ -66,6 +67,21 @@ def login(**kwargs):
     api.login(username, password)
     _select_profile()
     gui.refresh()
+
+@plugin.route()
+def hubs(**kwargs):
+    folder = plugin.Folder(_.HUBS)
+
+    data = api.collection_by_slug('home', 'home')
+    thumb = _image(data.get('images', []), 'thumb')
+
+    for row in data['containers']:
+        _set = row.get('set')
+        if _set.get('contentClass') == 'brandSix':
+            items = _process_rows(_set.get('items', []), 'brand')
+            folder.add_items(items)
+
+    return folder
 
 @plugin.route()
 def edit_profile(key, value, **kwargs):
@@ -126,7 +142,12 @@ def _select_profile():
         values.append(profile)
         profile['_avatar'] = avatars.get(profile['attributes']['avatar']['id'])
 
-        options.append(plugin.Item(label=profile['profileName'], art={'thumb': profile['_avatar']}))
+        if profile['attributes']['parentalControls']['isPinProtected']:
+            label = _(_.PROFILE_WITH_PIN, name=profile['profileName'])
+        else:
+            label = profile['profileName']
+
+        options.append(plugin.Item(label=label, art={'thumb': profile['_avatar']}))
 
         if profile['profileId'] == active.get('profileId'):
             default = index
@@ -160,7 +181,11 @@ def _select_profile():
         _set_profile(selected)
 
 def _set_profile(profile):
-    api.set_profile(profile)
+    pin = None
+    if profile['attributes']['parentalControls']['isPinProtected']:
+        pin = gui.input(_.ENTER_PIN, hide_input=True).strip()
+
+    api.set_profile(profile, pin=pin)
 
     if settings.getBool('kid_lockdown', False) and profile['attributes']['kidsModeEnabled']:
         userdata.set('kid_lockdown', True)
@@ -259,7 +284,11 @@ def collection(slug, content_class, label=None, **kwargs):
         if not set_id:
             return None
 
-        if _set['contentClass'] in ('hero', 'brand', 'episode', 'WatchlistSet'):
+        if slug == 'home' and _set['contentClass'] == 'brandSix':
+            continue
+
+       # if _set['contentClass'] in ('hero', 'episode', 'WatchlistSet'): # dont think need episode here..
+        if _set['contentClass'] in ('hero', 'WatchlistSet'):
             items = _process_rows(_set.get('items', []), _set['contentClass'])
             folder.add_items(items)
             continue
@@ -374,7 +403,7 @@ def _parse_series(row):
         info = {
             'plot': _get_text(row['texts'], 'description', 'series'),
             'year': row['releases'][0]['releaseYear'],
-          #  'mediatype': 'tvshow',
+      #      'mediatype': 'tvshow',
             'genre': row['genres'],
         },
         path = plugin.url_for(series, series_id=row['encodedSeriesId']),
@@ -387,6 +416,8 @@ def _parse_season(row, series):
         label = title,
         info  = {
             'plot': _get_text(row['texts'], 'description', 'season'),
+            'year': row['releases'][0]['releaseYear'],
+            'season': row['seasonSequenceNumber'],
            # 'mediatype' : 'season'
         },
         art   = {'thumb': _image(row['images'] or series['images'], 'thumb')},
