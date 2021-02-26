@@ -471,9 +471,10 @@ def _parse_video(row):
         item.context.append((_.EXTRAS, "Container.Update({})".format(plugin.url_for(extras, family_id=row['encodedParentOf'], fanart=_image(row['images'], 'fanart')))))
         item.context.append((_.SUGGESTED, "Container.Update({})".format(plugin.url_for(suggested, family_id=row['encodedParentOf']))))
 
-    available = arrow.get(row['currentAvailability']['appears'])
-    if available > arrow.now():
-        item.label = _(_.AVAILABLE, label=item.label, date=available.to('local').format(_.AVAILABLE_FORMAT))
+    if row['currentAvailability']['appears']:
+        available = arrow.get(row['currentAvailability']['appears'])
+        if available > arrow.now():
+            item.label = _(_.AVAILABLE, label=item.label, date=available.to('local').format(_.AVAILABLE_FORMAT))
 
     return item
 
