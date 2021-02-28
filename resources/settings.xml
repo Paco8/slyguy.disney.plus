@@ -2,8 +2,8 @@
 <settings>
     <category label="$ADDON[script.module.slyguy 32034]">
         <setting label="30024" type="bool" id="skip_intros" default="false"/>
-        <setting label="30020" type="bool" id="skip_credits" default="false"/>
-        <setting label="30021" type="bool" id="play_next_episode" default="false"/>
+        <setting label="30020" type="bool" id="skip_credits" default="true"/>
+        <setting label="30021" type="bool" id="play_next_episode" default="true"/>
         <setting label="30022" type="bool" id="play_next_movie" default="false"/>
         <setting label="$ADDON[script.module.slyguy 32104]" type="bool" id="kid_lockdown" default="false"/>
         <setting label="30016" type="bool" id="disney_sync" default="false"/>
