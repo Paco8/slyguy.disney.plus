@@ -244,6 +244,8 @@ class API(object):
         userdata.set('profile_language', profile['attributes']['languagePreferences']['appLanguage'])
 
     def search(self, query, page=1, page_size=PAGE_SIZE):
+        self._refresh_token()
+
         variables = {
             'preferredLanguage': [self._app_language],
             'index': 'disney_global',
@@ -254,7 +256,11 @@ class API(object):
         }
 
         endpoint = self.get_config()['services']['content']['client']['endpoints']['searchPersisted']['href'].format(queryId='core/disneysearch')
-        return self._session.get(endpoint, params={'variables': json.dumps(variables)}).json()['data']['disneysearch']
+
+        data = self._session.get(endpoint, params={'variables': json.dumps(variables)}).json()
+        self._check_errors(data)
+
+        return data['data']['disneysearch']
 
     def avatar_by_id(self, ids):
         variables = {

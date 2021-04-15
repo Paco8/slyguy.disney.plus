@@ -656,8 +656,6 @@ def play(content_id=None, family_id=None, skip_intro=None, **kwargs):
     original_language = video.get('originalLanguage') or 'en'
 
     headers = api.session.headers
-    headers['_proxy_default_language'] = original_language
-    headers['_proxy_original_language'] = original_language
     ia.properties['original_audio_language'] = original_language
 
     ## Allow fullres worldwide ##
@@ -669,7 +667,8 @@ def play(content_id=None, family_id=None, skip_intro=None, **kwargs):
         path = media_stream,
         inputstream = ia,
         headers = headers,
-        use_proxy = True,
+        use_proxy = True, #required for default languages
+        proxy_data = {'default_language': original_language, 'original_language': original_language},
     )
 
     resume_from = None
