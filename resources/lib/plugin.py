@@ -29,22 +29,21 @@ def index(**kwargs):
         folder.add_item(label=_(_.LOGIN, _bold=True),  path=plugin.url_for(login), bookmark=False)
     else:
         folder.add_item(label=_(_.FEATURED, _bold=True), path=plugin.url_for(collection, slug='home', content_class='home', label=_.FEATURED))
-        folder.add_item(label=_(_.HUBS, _bold=True),  path=plugin.url_for(hubs))
-        folder.add_item(label=_(_.MOVIES, _bold=True),  path=plugin.url_for(collection, slug='movies', content_class='contentType'))
-        folder.add_item(label=_(_.SERIES, _bold=True),  path=plugin.url_for(collection, slug='series', content_class='contentType'))
-        folder.add_item(label=_(_.ORIGINALS, _bold=True),  path=plugin.url_for(collection, slug='originals', content_class='originals'))
-        folder.add_item(label=_(_.WATCHLIST, _bold=True),  path=plugin.url_for(collection, slug='watchlist', content_class='watchlist'))
-        folder.add_item(label=_(_.SEARCH, _bold=True),  path=plugin.url_for(search))
+        folder.add_item(label=_(_.HUBS, _bold=True), path=plugin.url_for(hubs))
+        folder.add_item(label=_(_.MOVIES, _bold=True), path=plugin.url_for(collection, slug='movies', content_class='contentType'))
+        folder.add_item(label=_(_.SERIES, _bold=True), path=plugin.url_for(collection, slug='series', content_class='contentType'))
+        folder.add_item(label=_(_.ORIGINALS, _bold=True), path=plugin.url_for(collection, slug='originals', content_class='originals'))
+        folder.add_item(label=_(_.WATCHLIST, _bold=True), path=plugin.url_for(collection, slug='watchlist', content_class='watchlist'))
+        folder.add_item(label=_(_.SEARCH, _bold=True), path=plugin.url_for(search))
 
         if settings.getBool('disney_sync', False):
             folder.add_item(label=_(_.CONTINUE_WATCHING, _bold=True), path=plugin.url_for(sets, set_id=CONTINUE_WATCHING_SET_ID, set_type=CONTINUE_WATCHING_SET_TYPE))
 
         if settings.getBool('bookmarks', True):
-            folder.add_item(label=_(_.BOOKMARKS, _bold=True),  path=plugin.url_for(plugin.ROUTE_BOOKMARKS), bookmark=False)
+            folder.add_item(label=_(_.BOOKMARKS, _bold=True), path=plugin.url_for(plugin.ROUTE_BOOKMARKS), bookmark=False)
 
         if not userdata.get('kid_lockdown', False):
             folder.add_item(label=_.SELECT_PROFILE, path=plugin.url_for(select_profile), art={'thumb': userdata.get('avatar')}, info={'plot': userdata.get('profile')}, _kiosk=False, bookmark=False)
-            #folder.add_item(label=_.PROFILE_SETTINGS, path=plugin.url_for(profile_settings), art={'thumb': userdata.get('avatar')}, info={'plot': userdata.get('profile')}, _kiosk=False)
 
         folder.add_item(label=_.LOGOUT, path=plugin.url_for(logout), _kiosk=False, bookmark=False)
 
@@ -84,34 +83,6 @@ def hubs(**kwargs):
     return folder
 
 @plugin.route()
-def edit_profile(key, value, **kwargs):
-    profile = api.active_profile()
-
-    if key == 'prefer_133':
-        profile['attributes']['playbackSettings']['prefer133'] = bool(int(value))
-
-    if api.update_profile(profile):
-        gui.refresh()
-
-# @plugin.route()
-# def profile_settings(**kwargs):
-#     folder = plugin.Folder(_.PROFILE_SETTINGS)
-
-#     profile = api.active_profile()
-
-#     app_language      = profile['attributes']['languagePreferences']['appLanguage']
-#     playback_language = profile['attributes']['languagePreferences']['playbackLanguage']
-#     subtitle_language = profile['attributes']['languagePreferences']['subtitleLanguage']
-#     prefer_133        = profile['attributes']['playbackSettings']['prefer133']
-
-#     # folder.add_item(label='App Language: {}'.format(app_language))
-#     # folder.add_item(label='Playback Language: {}'.format(playback_language))
-#     # folder.add_item(label='Subtitle Language: {}'.format(subtitle_language))
-#     folder.add_item(label='Prefer Original Video Format: {}'.format('Yes' if prefer_133 else 'No'), path=plugin.url_for(edit_profile, key='prefer_133', value=int(not prefer_133)))
-
-#     return folder
-
-@plugin.route()
 def select_profile(**kwargs):
     if userdata.get('kid_lockdown', False):
         return
@@ -130,12 +101,11 @@ def _avatars(ids):
 
 def _select_profile():
     profiles = api.profiles()
-    active   = api.active_profile()
-    avatars  = _avatars([x['attributes']['avatar']['id'] for x in profiles])
+    active = api.active_profile()
+    avatars = _avatars([x['attributes']['avatar']['id'] for x in profiles])
 
     options = []
-    values  = []
-    can_delete = []
+    values = []
     default = -1
 
     for index, profile in enumerate(profiles):
@@ -151,34 +121,15 @@ def _select_profile():
 
         if profile['profileId'] == active.get('profileId'):
             default = index
-
             userdata.set('avatar', profile['_avatar'])
             userdata.set('profile', profile['profileName'])
             userdata.set('profile_id', profile['profileId'])
 
-        elif not profile['attributes']['isDefault']:
-            can_delete.append(profile)
-
-    options.append(plugin.Item(label=_(_.ADD_PROFILE, _bold=True)))
-    values.append('_add')
-
-    if can_delete:
-        options.append(plugin.Item(label=_(_.DELETE_PROFILE, _bold=True)))
-        values.append('_delete')
-
     index = gui.select(_.SELECT_PROFILE, options=options, preselect=default, useDetails=True)
-
     if index < 0:
         return
 
-    selected = values[index]
-
-    if selected == '_delete':
-        _delete_profile(can_delete)
-    elif selected == '_add':
-        _add_profile(taken_names=[x['profileName'] for x in profiles], taken_avatars=[avatars[x] for x in avatars])
-    else:
-        _set_profile(selected)
+    _set_profile(values[index])
 
 def _set_profile(profile):
     pin = None
@@ -195,86 +146,16 @@ def _set_profile(profile):
     userdata.set('profile_id', profile['profileId'])
     gui.notification(_.PROFILE_ACTIVATED, heading=profile['profileName'], icon=profile['_avatar'])
 
-def _delete_profile(profiles):
-    options = []
-    for index, profile in enumerate(profiles):
-        options.append(plugin.Item(label=profile['profileName'], art={'thumb': profile['_avatar']}))
-
-    index = gui.select(_.SELECT_DELETE_PROFILE, options=options, useDetails=True)
-    if index < 0:
-        return
-
-    selected = profiles[index]
-    if gui.yes_no(_.DELETE_PROFILE_INFO, heading=_(_.DELTE_PROFILE_HEADER, name=selected['profileName'])) and api.delete_profile(selected).ok:
-        gui.notification(_.PROFILE_DELETED, heading=selected['profileName'], icon=selected['_avatar'])
-
-def _add_profile(taken_names, taken_avatars):
-    ## PROFILE AVATAR ##
-    options = [plugin.Item(label=_(_.RANDOM_AVATAR, _bold=True)),]
-    values  = ['_random',]
-    avatars = {}
-    unused  = []
-
-    data = api.collection_by_slug('avatars', 'avatars')
-    for container in data['containers']:
-        if container['set']['contentClass'] == 'hidden':
-            continue
-
-        category = _get_text(container['set']['texts'], 'title', 'set')
-
-        for row in container['set'].get('items', []):
-            if row['images'][0]['url'] in taken_avatars:
-                label = _(_.AVATAR_USED, label=category)
-            else:
-                label = category
-                unused.append(row['avatarId'])
-
-            options.append(plugin.Item(label=label, art={'thumb': row['images'][0]['url']}))
-            values.append(row['avatarId'])
-            avatars[row['avatarId']] = row['images'][0]['url']
-
-    index = gui.select(_.SELECT_AVATAR, options=options, useDetails=True)
-    if index < 0:
-        return
-
-    avatar = values[index]
-    if avatar == '_random':
-        avatar = random.choice(unused or avatars.keys())
-
-    ## PROFLE KIDS ##
-    kids = gui.yes_no(_.KIDS_PROFILE_INFO, heading=_.KIDS_PROFILE)
-
-    ## PROFILE NAME ##
-    name = ''
-    while True:
-        name = gui.input(_.PROFILE_NAME, default=name).strip()
-        if not name:
-            return
-
-        elif name in taken_names:
-            gui.notification(_(_.PROFILE_NAME_TAKEN, name=name))
-
-        else:
-            break
-
-    profile = api.add_profile(name, kids=kids, avatar=avatar)
-    profile['_avatar'] = avatars[avatar]
-
-    if 'errors' in profile:
-        raise PluginError(profile['errors'][0].get('description'))
-
-    _set_profile(profile)
-
 @plugin.route()
 def collection(slug, content_class, label=None, **kwargs):
     data = api.collection_by_slug(slug, content_class)
 
     folder = plugin.Folder(label or _get_text(data['texts'], 'title', 'collection'), fanart=_image(data.get('images', []), 'fanart'))
-    thumb  = _image(data.get('images', []), 'thumb')
+    thumb = _image(data.get('images', []), 'thumb')
 
     for row in data['containers']:
         _type = row.get('type')
-        _set  = row.get('set')
+        _set = row.get('set')
 
         if _set.get('refIdType') == 'setId':
             set_id = _set['refId']
@@ -305,8 +186,8 @@ def collection(slug, content_class, label=None, **kwargs):
 
         folder.add_item(
             label = title,
-            art   = {'thumb': thumb},
-            path  = plugin.url_for(sets, set_id=set_id, set_type=_set['contentClass']),
+            art = {'thumb': thumb},
+            path = plugin.url_for(sets, set_id=set_id, set_type=_set['contentClass']),
         )
 
     return folder
@@ -353,8 +234,7 @@ def _process_rows(rows, content_class=None):
                 item = _parse_video(row)
 
             if item.playable and settings.getBool('disney_sync', False):
-                item.properties['ResumeTime'] = continue_watching.get(row['contentId'], 0)
-                item.properties['TotalTime'] = continue_watching.get(row['contentId'], 0)
+                item.resume_from = continue_watching.get(row['contentId'], 0)
 
         elif content_type == 'DmcSeries':
             item = _parse_series(row)
@@ -403,7 +283,7 @@ def _parse_series(row):
         info = {
             'plot': _get_text(row['texts'], 'description', 'series'),
             'year': row['releases'][0]['releaseYear'],
-      #      'mediatype': 'tvshow',
+            'mediatype': 'tvshow',
             'genre': row['genres'],
         },
         path = plugin.url_for(series, series_id=row['encodedSeriesId']),
@@ -418,7 +298,7 @@ def _parse_season(row, series):
             'plot': _get_text(row['texts'], 'description', 'season'),
             'year': row['releases'][0]['releaseYear'],
             'season': row['seasonSequenceNumber'],
-           # 'mediatype' : 'season'
+            'mediatype': 'season',
         },
         art   = {'thumb': _image(row['images'] or series['images'], 'thumb')},
         path  = plugin.url_for(season, season_id=row['seasonId'], title=title),
@@ -464,7 +344,7 @@ def _parse_video(row):
 
     if row['programType'] == 'episode':
         item.info.update({
-            'mediatype' : 'episode',
+            'mediatype': 'episode',
             'tvshowtitle': _get_text(row['texts'], 'title', 'series'),
         })
     else:
@@ -474,7 +354,10 @@ def _parse_video(row):
     if row['currentAvailability']['appears']:
         available = arrow.get(row['currentAvailability']['appears'])
         if available > arrow.now():
-            item.label = _(_.AVAILABLE, label=item.label, date=available.to('local').format(_.AVAILABLE_FORMAT))
+            if available > arrow.now().shift(years=1):
+                item.label = _(_.COMING_SOON, label=item.label)
+            else:
+                item.label = _(_.AVAILABLE, label=item.label, date=available.to('local').format(_.AVAILABLE_FORMAT))
 
     return item
 
@@ -581,7 +464,6 @@ def suggested(family_id=None, series_id=None, **kwargs):
 
     items = _process_rows(data['related']['items'])
     folder.add_items(items)
-
     return folder
 
 @plugin.route()
@@ -593,32 +475,11 @@ def extras(family_id, fanart=None, **kwargs):
     return folder
 
 @plugin.route()
-def search(query=None, page=1, **kwargs):
-    page  = int(page)
-
-    if not query:
-        query = gui.input(_.SEARCH, default=userdata.get('search', '')).strip()
-        if not query:
-            return
-
-        userdata.set('search', query)
-
-    folder = plugin.Folder(_(_.SEARCH_FOR, query=query))
-
+@plugin.search()
+def search(query, page, **kwargs):
     data = api.search(query, page=page)
-
     hits = [x['hit'] for x in data['hits']] if data['resultsType'] == 'real' else []
-    items = _process_rows(hits)
-    folder.add_items(items)
-
-    if (data['meta']['page_size'] + data['meta']['offset']) < data['meta']['hits']:
-        folder.add_item(
-            label = _(_.NEXT_PAGE, page=page+1),
-            path  = plugin.url_for(search, query=query, page=page+1),
-            specialsort = 'bottom',
-        )
-
-    return folder
+    return _process_rows(hits), (data['meta']['page_size'] + data['meta']['offset']) < data['meta']['hits']
 
 @plugin.route()
 @plugin.login_required()
@@ -650,9 +511,9 @@ def play(content_id=None, family_id=None, skip_intro=None, **kwargs):
 
         video = data['videos'][0]
 
-    playback_url      = video['mediaMetadata']['playbackUrls'][0]['href']
-    playback_data     = api.playback_data(playback_url)
-    media_stream      = playback_data['stream']['complete']
+    playback_url = video['mediaMetadata']['playbackUrls'][0]['href']
+    playback_data = api.playback_data(playback_url)
+    media_stream = playback_data['stream']['complete']
     original_language = video.get('originalLanguage') or 'en'
 
     headers = api.session.headers
@@ -667,23 +528,16 @@ def play(content_id=None, family_id=None, skip_intro=None, **kwargs):
         path = media_stream,
         inputstream = ia,
         headers = headers,
-        use_proxy = True, #required for default languages
         proxy_data = {'default_language': original_language, 'original_language': original_language},
     )
 
-    resume_from = None
-    if kwargs[ROUTE_RESUME_TAG]:
-        if settings.getBool('disney_sync', False):
-            continue_watching = api.continue_watching()
-            resume_from = continue_watching.get(video['contentId'], 0)
-            item.properties['ForceResume'] = True
+    if kwargs[ROUTE_RESUME_TAG] and settings.getBool('disney_sync', False):
+        continue_watching = api.continue_watching()
+        item.resume_from = continue_watching.get(video['contentId'], 0)
+        item.force_resume = True
 
     elif (int(skip_intro) if skip_intro is not None else settings.getBool('skip_intros', False)):
-        resume_from = _get_milestone(video.get('milestones'), 'intro_end', default=0) / 1000
-
-    if resume_from is not None:
-        item.properties['ResumeTime'] = resume_from
-        item.properties['TotalTime']  = resume_from
+        item.resume_from = _get_milestone(video.get('milestones'), 'intro_end', default=0) / 1000
 
     item.play_next = {}
 
