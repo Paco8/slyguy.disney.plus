@@ -18,7 +18,7 @@ Abbonamento richiesto.</description>
     <license></license>
     <language></language>
     <website></website>
-    <news>Migrate to latest Disney API</news>
+    <news>Fix Skip Credits and improve Skip Intro</news>
     <assets>
       <icon>icon.png</icon>
       <fanart>fanart.jpg</fanart>
