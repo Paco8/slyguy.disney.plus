@@ -6,16 +6,10 @@
         <setting label="30021" type="bool" id="play_next_episode" default="true"/>
         <setting label="30022" type="bool" id="play_next_movie" default="false"/>
         <setting label="$ADDON[script.module.slyguy 32104]" type="bool" id="kid_lockdown" default="false"/>
-        <setting label="30047" type="bool" id="disney_watchlist" default="true"/>
-        <setting label="30016" type="bool" id="disney_sync" default="true"/>
+        <setting label="30047" type="bool" id="sync_watchlist" default="true"/>
+        <setting label="30016" type="bool" id="sync_playback" default="false"/>
         <setting id="use_ttml2ssa" type="bool" label="$ADDON[script.module.ttml2ssa 32202]" default="true"/>
         <setting id="ssa_settings" type="action" label="$ADDON[script.module.ttml2ssa 32201]" option="close" action="Addon.OpenSettings(script.module.ttml2ssa)" enable="eq(-1,true)"/>
-
-        <setting label="30009" type="bool" id="wv_secure" default="false" visible="system.platform.android"/>
-            <setting label="30019" type="bool" id="h265" default="true" visible="eq(-1,true)"/>
-                <setting label="30052" type="bool" id="dolby_atmos" default="false" visible="eq(-2,true)+eq(-1,true)"/>
-                <setting label="30018" type="bool" id="hdr10" default="true" visible="eq(-3,true)+eq(-2,true)" enable="eq(1,false)"/>
-                <setting label="30015" type="bool" id="dolby_vision" default="false" visible="eq(-4,true)+eq(-3,true)" enable="eq(-1,false)"/>
     </category>
 
     <category label="$ADDON[script.module.slyguy 32035]">
