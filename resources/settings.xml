@@ -7,22 +7,23 @@
         <setting label="30021" type="bool" id="play_next_episode" default="false"/>
         <setting label="30022" type="bool" id="play_next_movie" default="false"/>
         <setting label="$ADDON[script.module.slyguy 32104]" type="bool" id="kid_lockdown" default="false"/>
-        <setting label="30047" type="bool" id="disney_watchlist" default="true"/>
-        <setting label="30016" type="bool" id="disney_sync" default="true"/>
+        <setting label="30047" type="bool" id="sync_watchlist" default="true"/>
+        <setting label="30016" type="bool" id="sync_playback" default="false"/>
         <setting id="use_ttml2ssa" type="bool" label="$ADDON[script.module.ttml2ssa 32202]" default="true"/>
         <setting id="ssa_settings" type="action" label="$ADDON[script.module.ttml2ssa 32201]" option="close" action="Addon.OpenSettings(script.module.ttml2ssa)" enable="eq(-1,true)"/>
-
-        <setting label="30009" type="bool" id="wv_secure" default="false" visible="system.platform.android"/>
-            <setting label="30019" type="bool" id="h265" default="true" visible="eq(-1,true)"/>
-                <setting label="30052" type="bool" id="dolby_atmos" default="false" visible="eq(-2,true)+eq(-1,true)"/>
-                <setting label="30018" type="bool" id="hdr10" default="true" visible="eq(-3,true)+eq(-2,true)" enable="eq(1,false)"/>
-                <setting label="30015" type="bool" id="dolby_vision" default="false" visible="eq(-4,true)+eq(-3,true)" enable="eq(-1,false)"/>
     </category>
 
     <category label="$ADDON[script.module.slyguy 32035]">
         <setting label="$ADDON[script.module.slyguy 32061]" id="default_quality" type="enum" default="0" lvalues="32055|32043|32060|32048|32054|32073"/>
         <setting label="$ADDON[script.module.slyguy 32059]" id="max_bandwidth" type="slider" default="7" range="0.5,0.5,100" option="float" visible="eq(-1,4)"/>
 
+        <setting label="30019" type="bool" id="h265" default="true" visible="Integer.IsEqual(Window(10000).Property(wv_level),1)"/>
+            <setting label="30052" type="bool" id="dolby_atmos" default="false" visible="Integer.IsEqual(Window(10000).Property(wv_level),1)" enable="eq(-1,true)"/>
+            <setting label="30018" type="bool" id="hdr10" default="true" visible="Integer.IsEqual(Window(10000).Property(wv_level),1)" enable="eq(-2,true)+eq(1,false)"/>
+            <setting label="30015" type="bool" id="dolby_vision" default="false" visible="Integer.IsEqual(Window(10000).Property(wv_level),1)" enable="eq(-3,true)+eq(-1,false)"/>
+
+        <setting label="$ADDON[script.module.slyguy 32072]" id="default_language" type="text" default=""/>
+        <setting label="$ADDON[script.module.slyguy 32121]" id="default_subtitle" type="text" default=""/>
         <setting label="$ADDON[script.module.slyguy 32086]" id="audio_whitelist" type="text" default=""/>
         <setting label="$ADDON[script.module.slyguy 32087]" id="subs_whitelist" type="text" default=""/>
         <setting label="$ADDON[script.module.slyguy 32088]" id="subs_forced" type="bool" default="true"/>
@@ -36,6 +37,7 @@
     </category>
 
     <category label="$ADDON[script.module.slyguy 32036]">
+        <setting label="$ADDON[script.module.slyguy 32129]" id="video_folder_content" type="bool" default="true"/>
         <setting label="$ADDON[script.module.slyguy 32120]" id="show_series_folders" type="bool" default="true"/>
         <setting label="$ADDON[script.module.slyguy 32111]" id="bookmarks" type="bool" default="true"/>
         <setting label="$ADDON[script.module.slyguy 32078]" id="kiosk" type="bool" default="false"/>
