@@ -1,5 +1,18 @@
+# Language file for Disney+ Video Add-on for Kodi
+# Addon Name: Disney+
+# Addon id: slyguy.disney.plus
+# Addon Provider: SlyGuy
 msgid ""
 msgstr ""
+"Project-Id-Version: Kodi Addons\n"
+"Report-Msgid-Bugs-To: https://github.com/matthuisman/slyguy.addons\n"
+"Last-Translator: matthuisman\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgctxt "#30001"
 msgid "Email Address"
@@ -34,10 +47,6 @@ msgctxt "#30008"
 msgid "Hubs"
 msgstr ""
 
-msgctxt "#30009"
-msgid "Widevine L1 Secure Device"
-msgstr ""
-
 msgctxt "#30010"
 msgid "Suggested"
 msgstr ""
@@ -64,7 +73,7 @@ msgid "Dolby Vision / 4K"
 msgstr ""
 
 msgctxt "#30016"
-msgid "Sync with Disney+"
+msgid "Disney+ Sync Playback"
 msgstr ""
 
 msgctxt "#30017"
@@ -76,7 +85,7 @@ msgid "HDR10 / 4K"
 msgstr ""
 
 msgctxt "#30019"
-msgid "H.265 / 1080P"
+msgid "H.265"
 msgstr ""
 
 msgctxt "#30020"
@@ -89,10 +98,6 @@ msgstr ""
 
 msgctxt "#30022"
 msgid "Play Next Recommended Movie"
-msgstr ""
-
-msgctxt "#30023"
-msgid "Play without Intro"
 msgstr ""
 
 msgctxt "#30024"
@@ -123,9 +128,6 @@ msgctxt "#30030"
 msgid "Enter your Profile PIN"
 msgstr ""
 
-msgctxt "#30041"
-msgid "Play with Intro"
-msgstr ""
 
 msgctxt "#30042"
 msgid "Continue Watching"

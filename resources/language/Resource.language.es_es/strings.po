@@ -1,82 +1,69 @@
-# Language file for Disney+ Video Add-on for Kodi
-# Addon Name: Disney+
-# Addon id: slyguy.disney.plus
-# Addon Provider: SlyGuy
 msgid ""
 msgstr ""
-"Project-Id-Version: Kodi Addons\n"
-"Report-Msgid-Bugs-To: https://github.com/matthuisman/slyguy.addons\n"
-"Last-Translator: thombet\n"
-"Language-Team: \n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Language: fr_ca\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgctxt "#30001"
 msgid "Email Address"
-msgstr "Courriel"
+msgstr "Correo Electronico"
 
 msgctxt "#30002"
 msgid "Password"
-msgstr "Mot de passe"
+msgstr "Contraseña"
 
 msgctxt "#30003"
 msgid "API request failed\n"
 "Server Error: {msg}"
-msgstr "L'API de requête a échoué\n"
-"Erreur serveur : {msg}"
+msgstr "API fallo >de repuesta\n"
+"Error en Servidor:{msg}"
 
 msgctxt "#30004"
 msgid "Movies"
-msgstr "Films"
+msgstr "Peliculas"
 
 msgctxt "#30005"
 msgid "Series"
-msgstr "Séries"
+msgstr "Series"
 
 msgctxt "#30006"
 msgid "Originals"
-msgstr "Originals"
+msgstr "Originales"
 
 msgctxt "#30007"
-msgid "Full Details"
-msgstr "Détails"
+msgid "Information"
+msgstr "Informacion"
 
 msgctxt "#30008"
 msgid "Hubs"
-msgstr "Univers"
+msgstr "Central"
 
 msgctxt "#30010"
 msgid "Suggested"
-msgstr "Suggestions"
+msgstr "Sugeridos para TI"
 
 msgctxt "#30011"
 msgid "Featured"
-msgstr "À la une"
+msgstr "Destacados"
 
 msgctxt "#30012"
 msgid "Season {season}"
-msgstr "Saison {season}"
+msgstr "Temporada {season}"
 
 msgctxt "#30013"
 msgid "Extras"
-msgstr "Bonus"
+msgstr "Extras"
 
 msgctxt "#30014"
 msgid "Full support on Kodi {kodi_ver} requires at least Inputstream Adaptive Version {ver_required}\n"
 "You may experience playback issues with your current version."
-msgstr "Pour utiliser toutes les fonctionnalités sur Kodi {kodi_ver}, la version {ver_required} au minimum d'Inputstream Adaptative est nécessaire.\n"
-"Vous risquez d'avoir des problèmes de lecture avec votre version actuelle."
+msgstr "El soporte completo en Kodi {kodi_ver} requiere al menos Inputstream Adaptive Version {ver_required} \ n"
+"Puede experimentar problemas de reproducción con su versión actual."
 
 msgctxt "#30015"
 msgid "Dolby Vision / 4K"
 msgstr "Dolby Vision / 4K"
 
 msgctxt "#30016"
-msgid "Disney+ Sync Playback"
-msgstr "Synchroniser la lecture avec Disney+"
+msgid "Sync with Disney+"
+msgstr "Sincronizar con Disney+"
 
 msgctxt "#30017"
 msgid "{name} [PIN]"
@@ -92,88 +79,95 @@ msgstr "H.265"
 
 msgctxt "#30020"
 msgid "Skip Credits"
-msgstr "Passer le générique de fin"
+msgstr "Saltar Creditos"
 
 msgctxt "#30021"
 msgid "Play Next Episode"
-msgstr "Jouer le prochain épisode"
+msgstr "Reproducir Siguiente Episodio"
 
 msgctxt "#30022"
 msgid "Play Next Recommended Movie"
-msgstr "Jouer le prochain film recommandé"
+msgstr "Reproducir Siguiente Pelicula Recomendada "
+
+msgctxt "#30023"
+msgid "Play without Intro"
+msgstr "Reproducir sin Intro"
 
 msgctxt "#30024"
 msgid "Skip Intros"
-msgstr "Passer l'intro"
+msgstr "Saltar Intros"
 
 msgctxt "#30025"
 msgid "Play from Start"
-msgstr "Jouer du début"
+msgstr "Ver desde Inicio"
 
 msgctxt "#30026"
 msgid "Watchlist"
-msgstr "Ma Liste"
+msgstr "Mi Lista"
 
 msgctxt "#30027"
 msgid "Add to Watchlist"
-msgstr "Ajouter à Ma Liste"
+msgstr "Añadir a Mi Lista"
 
 msgctxt "#30028"
 msgid "Remove from Watchlist"
-msgstr "Retirer de Ma Liste"
+msgstr "Eliminar de Mi Lista"
 
 msgctxt "#30029"
 msgid "Added to Watchlist"
-msgstr "Ajouté à Ma Liste"
+msgstr "Agregado a Mi Lista"
 
 msgctxt "#30030"
 msgid "Enter your Profile PIN"
-msgstr "Entrer le code PIN de profil"
+msgstr "Introduzca el PIN del Perfil"
 
+msgctxt "#30041"
+msgid "Play with Intro"
+msgstr "Reproducir con intro"
 
 msgctxt "#30042"
 msgid "Continue Watching"
-msgstr "Continuer à regarder"
+msgstr "Continuar Viendo"
 
 msgctxt "#30043"
 msgid "You are not entitled to access this content.\n"
 "Check your subscription is valid."
-msgstr "Nous ne pouvez pas accéder à ce contenu.\n"
-"Vérifiez que votre abonnement est valide."
+msgstr "No tiene derecho a acceder a este contenido.\n"
+"Comprueba que tu suscripción sea válida."
 
 msgctxt "#30044"
 msgid "Your login details are in-correct.\n"
 "Please check them and try again."
-msgstr "Vos informations de connexion sont incorrects.\n"
-"Veuillez les vérifier et essayer de nouveau."
+msgstr "Sus datos de inicio de sesión no son correctos.\n"
+"Revíselos y vuelva a intentarlo."
 
 msgctxt "#30045"
 msgid "{label} [B](Coming Soon)[/B]"
-msgstr "{label} [B](bientôt disponible)[/B]"
+msgstr "{label}[B](Proximamente)[/B]"
 
 msgctxt "#30046"
 msgid "Incorrect Pin"
-msgstr "Code PIN incorrect"
+msgstr "Pin Incorrecto"
 
 msgctxt "#30047"
 msgid "Disney+ Watchlist"
-msgstr "Ma Liste Disney+"
+msgstr "Disney+ Mi Lista"
 
 msgctxt "#30048"
 msgid "From {time:0>8}"
-msgstr "Depuis {time:0>8}"
+msgstr "Desde{time:0>8}"
 
 msgctxt "#30049"
 msgid "{label} [B](Available {date})[/B]"
-msgstr "{label} [B](disponible {date})[/B]"
+msgstr "{label}[B](Disponible {date})[/B]"
 
 msgctxt "#30050"
 msgid "DD/MM/YYYY"
-msgstr "JJ/MM/AAAA"
+msgstr "DD/MM/YYYY"
 
 msgctxt "#30051"
 msgid "Could not find stream data for this content"
-msgstr "Impossible de trouver les données de flux pour ce contenu"
+msgstr "No se pudieron encontrar los datos de transmisión para este contenido."
 
 msgctxt "#30052"
 msgid "Dolby Atmos"
@@ -181,34 +175,34 @@ msgstr "Dolby Atmos"
 
 msgctxt "#30053"
 msgid "Profile Settings"
-msgstr "Informations du profil"
+msgstr "Configurar Perfil"
 
 msgctxt "#30054"
 msgid "Continue Watching"
-msgstr "Continuer à regarder"
+msgstr "Continuar Viendo"
 
 ## COMMON SETTINGS ##
 
 msgctxt "#32055"
 msgid "Ask"
-msgstr "Demander"
+msgstr "Preguntar"
 
 msgctxt "#32043"
 msgid "Best"
-msgstr "Le/La meilleur(e)"
+msgstr "Mejor"
 
 msgctxt "#32060"
 msgid "Lowest"
-msgstr "Le/La plus bas(se)"
+msgstr "Baja"
 
 msgctxt "#32048"
 msgid "Bypass"
-msgstr "Contourner"
+msgstr "Bypass"
 
 msgctxt "#32054"
 msgid "Custom"
-msgstr "Personnalisé(e)"
+msgstr "Personalizado"
 
 msgctxt "#32073"
 msgid "Disabled"
-msgstr "Désactivé(e)"
+msgstr "Desactivada"
