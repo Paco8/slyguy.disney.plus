@@ -592,7 +592,58 @@ def play(content_id=None, family_id=None, **kwargs):
             'callback': plugin.url_for(callback, media_id=telemetry['mediaId'], fguid=telemetry['fguid']),
         }
 
+    add_subtitles(item)
+
     return item
+
+def add_subtitles(item):
+    import re
+    import os.path
+    import requests
+    import json
+    import xbmcaddon
+    try:  # Kodi >= 19
+      from xbmcvfs import translatePath
+    except ImportError:  # Kodi 18
+      from xbmc import translatePath
+
+    manifest_url = item.path
+    log.debug('**** manifest_url: {}'.format(manifest_url))
+
+    profile_dir = translatePath(xbmcaddon.Addon().getAddonInfo('profile'))
+    log.debug('**** profile_dir: {}'.format(profile_dir))
+    output_folder = profile_dir + 'subtitles' + os.sep
+    log.debug('**** output_folder: {}'.format(output_folder))
+    if not os.path.exists(os.path.dirname(output_folder)):
+      os.makedirs(os.path.dirname(output_folder))
+
+    from ttml2ssa import Ttml2SsaAddon
+    ttml = Ttml2SsaAddon()
+    subtype = ttml.subtitle_type()
+    subtype = 'ssa'
+    language_list = ['es', 'en']
+    allow_forced = True
+    allow_non_forced = True
+    sub_list = ttml.get_subtitle_list_from_m3u8_url(manifest_url, language_list, allow_forced, allow_non_forced)
+    log.debug("***** sub_list: {}".format(json.dumps(sub_list, indent=4)))
+
+    for sub in sub_list:
+      vtt, offset = ttml.download_m3u8_disney(sub['url'])
+      ttml.subtitle_language = sub['lang']
+      ttml.shift = offset
+      ttml.parse_vtt_from_string(vtt)
+      filename = output_folder + sub['filename']
+      if subtype != 'srt':
+        filename_ssa = filename + '.ssa'
+        ttml.write2file(filename_ssa)
+        item.subtitles.append({'url': filename_ssa, 'language': sub['lang'], 'forced': sub['forced']})
+      if subtype != 'ssa':
+        filename_srt = filename
+        if (subtype == 'both'): filename_srt += '.SRT'
+        filename_srt += '.srt'
+        ttml.write2file(filename_srt)
+        item.subtitles.append({'url': filename_srt, 'language': sub['lang'], 'forced': sub['forced']})
+
 
 @plugin.route()
 @plugin.no_error_gui()
