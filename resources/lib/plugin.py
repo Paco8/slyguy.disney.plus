@@ -605,6 +605,7 @@ def add_subtitles(item):
       from xbmcvfs import translatePath
     except ImportError:  # Kodi 18
       from xbmc import translatePath
+    import xbmcgui
 
     manifest_url = item.path
     log.debug('**** manifest_url: {}'.format(manifest_url))
@@ -626,6 +627,7 @@ def add_subtitles(item):
     #log.debug("***** sub_list: {}".format(json.dumps(sub_list, indent=4)))
 
     for sub in sub_list:
+      xbmcgui.Dialog().notification('Downloading subtitles', 'Downloading {}'.format(sub['lang']), xbmcgui.NOTIFICATION_INFO, 1000)
       vtt, offset = ttml.download_m3u8_disney(sub['url'])
       ttml.subtitle_language = sub['lang']
       ttml.shift = offset
