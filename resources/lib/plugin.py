@@ -599,8 +599,7 @@ def play(content_id=None, family_id=None, **kwargs):
 def add_subtitles(item):
     import re
     import os.path
-    import requests
-    import json
+    #import json
     import xbmcaddon
     try:  # Kodi >= 19
       from xbmcvfs import translatePath
@@ -620,12 +619,11 @@ def add_subtitles(item):
     from ttml2ssa import Ttml2SsaAddon
     ttml = Ttml2SsaAddon()
     subtype = ttml.subtitle_type()
-    subtype = 'ssa'
-    language_list = ['es', 'en']
-    allow_forced = True
-    allow_non_forced = True
+    language_list = language_list = [x.strip().lower() for x in settings.get('subs_whitelist', '').split(',') if x]
+    allow_forced = settings.getBool('subs_forced', True)
+    allow_non_forced = settings.getBool('subs_non_forced', True)
     sub_list = ttml.get_subtitle_list_from_m3u8_url(manifest_url, language_list, allow_forced, allow_non_forced)
-    log.debug("***** sub_list: {}".format(json.dumps(sub_list, indent=4)))
+    #log.debug("***** sub_list: {}".format(json.dumps(sub_list, indent=4)))
 
     for sub in sub_list:
       vtt, offset = ttml.download_m3u8_disney(sub['url'])
