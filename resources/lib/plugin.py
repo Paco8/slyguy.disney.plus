@@ -592,7 +592,8 @@ def play(content_id=None, family_id=None, **kwargs):
             'callback': plugin.url_for(callback, media_id=telemetry['mediaId'], fguid=telemetry['fguid']),
         }
 
-    add_subtitles(item)
+    if settings.getBool('use_ttml2ssa', False):
+      add_subtitles(item)
 
     return item
 
@@ -617,17 +618,20 @@ def add_subtitles(item):
     if not os.path.exists(os.path.dirname(output_folder)):
       os.makedirs(os.path.dirname(output_folder))
 
-    from ttml2ssa import Ttml2SsaAddon
-    ttml = Ttml2SsaAddon()
-    subtype = ttml.subtitle_type()
     language_list = language_list = [x.strip().lower() for x in settings.get('subs_whitelist', '').split(',') if x]
     allow_forced = settings.getBool('subs_forced', True)
     allow_non_forced = settings.getBool('subs_non_forced', True)
+    if len(language_list) == 0: return
+
+    from ttml2ssa import Ttml2SsaAddon
+    ttml = Ttml2SsaAddon()
+    subtype = ttml.subtitle_type()
+
     sub_list = ttml.get_subtitle_list_from_m3u8_url(manifest_url, language_list, allow_forced, allow_non_forced)
     #log.debug("***** sub_list: {}".format(json.dumps(sub_list, indent=4)))
 
     for sub in sub_list:
-      xbmcgui.Dialog().notification('Downloading subtitles', 'Downloading {}'.format(sub['lang']), xbmcgui.NOTIFICATION_INFO, 1000)
+      xbmcgui.Dialog().notification('Downloading subtitles', 'Downloading "{}"'.format(sub['lang']), xbmcgui.NOTIFICATION_INFO, 1000)
       vtt, offset = ttml.download_m3u8_disney(sub['url'])
       ttml.subtitle_language = sub['lang']
       ttml.shift = offset
