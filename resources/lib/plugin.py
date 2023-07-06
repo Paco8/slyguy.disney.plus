@@ -746,6 +746,7 @@ def add_subtitles(item):
     except ImportError:  # Kodi 18
       from xbmc import translatePath
     import xbmcgui
+    from slyguy.log import log
 
     manifest_url = item.path
     log.debug('**** manifest_url: {}'.format(manifest_url))
