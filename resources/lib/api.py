@@ -70,7 +70,7 @@ class API(object):
         refresh_token = data.get('refreshToken') or data['refresh_token']
         userdata.set('refresh_token', refresh_token)
 
-    def login(self, username, password):
+    def register_device(self):
         self.logout()
 
         payload = {
@@ -92,13 +92,28 @@ class API(object):
         endpoint = self.get_config()['services']['orchestration']['client']['endpoints']['registerDevice']['href']
         data = self._session.post(endpoint, json=payload, headers={'authorization': API_KEY}).json()
         self._check_errors(data)
-        token = data['extensions']['sdk']['token']['accessToken']
+        return data['extensions']['sdk']['token']['accessToken']
 
+    def check_email(self, email, token):
+        payload = {
+            'operationName': 'Check',
+            'variables': {
+                'email': email,
+            },
+            'query': queries.CHECK_EMAIL,
+        }
+
+        endpoint = self.get_config()['services']['orchestration']['client']['endpoints']['query']['href']
+        data = self._session.post(endpoint, json=payload, headers={'authorization': token}).json()
+        self._check_errors(data)
+        return data['data']['check']['operations'][0]
+
+    def login(self, email, password, token):
         payload = {
             'operationName': 'loginTv',
             'variables': {
                 'input': {
-                    'email': username,
+                    'email': email,
                     'password': password,
                 },
             },
@@ -110,10 +125,80 @@ class API(object):
         self._check_errors(data)
         self._set_auth(data['extensions']['sdk']['token'])
 
-    def _check_errors(self, data, error=_.API_ERROR):
+    def request_otp(self, email, token):
+        payload = {
+            'operationName': 'requestOtp',
+            'variables': {
+                'input': {
+                    'email': email,
+                    'reason': 'Login',
+                },
+            },
+            'query': queries.REQUESET_OTP,
+        }
+
+        endpoint = self.get_config()['services']['orchestration']['client']['endpoints']['query']['href']
+        data = self._session.post(endpoint, json=payload, headers={'authorization': token}).json()
+        self._check_errors(data)
+        return data['data']['requestOtp']['accepted']
+
+    def login_otp(self, email, passcode, token):
+        payload = {
+            'operationName': 'authenticateWithOtp',
+            'variables': {
+                'input': {
+                    'email': email,
+                    'passcode': passcode,
+                },
+            },
+            'query': queries.LOGIN_OTP,
+        }
+
+        endpoint = self.get_config()['services']['orchestration']['client']['endpoints']['query']['href']
+        data = self._session.post(endpoint, json=payload, headers={'authorization': token}).json()
+        error = self._check_errors(data, raise_on_error=False)
+        if error:
+            return error
+
+        self._login_action_grant(data['data']['authenticateWithOtp']['actionGrant'], token)
+
+    def _login_action_grant(self, action_grant, token):
+        payload = {
+            'operationName': 'loginWithActionGrant',
+            'variables': {
+                'input': {
+                    'actionGrant': action_grant,
+                },
+            },
+            'query': queries.LOGIN_ACTION_GRANT,
+        }
+
+        endpoint = self.get_config()['services']['orchestration']['client']['endpoints']['query']['href']
+        data = self._session.post(endpoint, json=payload, headers={'authorization': token}).json()
+        self._check_errors(data)
+        self._set_auth(data['extensions']['sdk']['token'])
+
+    def device_code(self):
+        token = self.register_device()
+
+        payload = {
+            'variables': {},
+            'query': queries.REQUEST_DEVICE_CODE,
+        }
+
+        endpoint = self.get_config()['services']['orchestration']['client']['endpoints']['query']['href']
+        data = self._session.post(endpoint, json=payload, headers={'authorization': token}).json()
+        self._check_errors(data)
+        return data['data']['requestLicensePlate']['licensePlate']
+
+    def device_login(self, code):
+        return False
+
+    def _check_errors(self, data, error=_.API_ERROR, raise_on_error=True):
         if not type(data) is dict:
             return
 
+        error_msg = None
         if data.get('errors'):
             if 'extensions' in data['errors'][0]:
                 code = data['errors'][0]['extensions'].get('code')
@@ -121,14 +206,19 @@ class API(object):
                 code = data['errors'][0].get('code')
 
             error_msg = ERROR_MAP.get(code) or data['errors'][0].get('message') or data['errors'][0].get('description') or code
-            raise APIError(_(error, msg=error_msg))
+            error_msg = _(error, msg=error_msg)
 
         elif data.get('error'):
             error_msg = ERROR_MAP.get(data.get('error_code')) or data.get('error_description') or data.get('error_code')
-            raise APIError(_(error, msg=error_msg))
+            error_msg = _(error, msg=error_msg)
 
         elif data.get('status') == 400:
-            raise APIError(_(error, msg=data.get('message')))
+            error_msg = _(error, msg=data.get('message'))
+
+        if error_msg and raise_on_error:
+            raise APIError(error_msg)
+
+        return error_msg
 
     def _json_call(self, endpoint):
         self._set_token()
@@ -196,13 +286,14 @@ class API(object):
     def _endpoint(self, href, **kwargs):
         profile, session = self.profile()
 
+        self._cache['basic_tier'] = 'DISNEY_PLUS_NO_ADS' not in session['entitlements']
         region = session['portabilityLocation']['countryCode'] if session['portabilityLocation'] else session['location']['countryCode']
         maturity = session['preferredMaturityRating']['impliedMaturityRating'] if session['preferredMaturityRating'] else 1850
         kids_mode = profile['attributes']['kidsModeEnabled'] if profile else False
         appLanguage = profile['attributes']['languagePreferences']['appLanguage'] if profile else 'en-US'
 
         _args = {
-            'apiVersion': API_VERSION,
+            'apiVersion': '{apiVersion}',
             'region': region,
             'impliedMaturityRating': maturity,
             'kidsModeEnabled': 'true' if kids_mode else 'false',
@@ -211,7 +302,14 @@ class API(object):
         }
         _args.update(**kwargs)
 
-        return href.format(**_args)
+        href = href.format(**_args)
+
+        # on the app, this changes based on endpoint
+        api_version = '5.1' # [3.0, 3.1, 3.2, 5.0, 3.3, 5.1, 6.0, 5.2]
+        # if '/CuratedSet/' in href or '/RecommendationSet/' in href or '/TrendingSet/' in href or '/WatchlistSet/' in href:
+        #     api_version = '3.1' #3.1 has description
+
+        return href.format(apiVersion=api_version)
 
     def profile(self):
         session = self._cache.get('session')
@@ -312,28 +410,51 @@ class API(object):
     def playback_data(self, playback_url, wv_secure=False):
         self._set_token()
 
-        config = self.get_config()
-        scenario = config['services']['media']['extras']['restrictedPlaybackScenario']
+        headers = {'accept': 'application/vnd.media-service+json; version={}'.format(6 if self._cache['basic_tier'] else 5), 'authorization': self._cache.get('access_token'), 'x-dss-feature-filtering': 'true'}
 
-        if wv_secure:
-            #scenario = config['services']['media']['extras']['playbackScenarioDefault']
-            scenario = 'tv-drm-ctr'
+        payload = {
+            "playback": {
+                "attributes": {
+                    "codecs": {
+                        'supportsMultiCodecMaster': False, #if true outputs all codecs and resoultion in single playlist
+                    },
+                    "protocol": "HTTPS",
+                    #"ads": "",
+                    "frameRates": [60],
+                    "assetInsertionStrategy": "SGAI" if self._cache['basic_tier'] else "NONE",
+                    "playbackInitializationContext": "online"
+                },
+            }
+        }
 
-            if settings.getBool('h265', False):
-                scenario += '-h265'
+        video_ranges = []
+        audio_types = []
 
-                if settings.getBool('dolby_vision', False):
-                    scenario += '-dovi'
-                elif settings.getBool('hdr10', False):
-                    scenario += '-hdr10'
+        # atmos not yet supported on version=6 (basic tier). Add in-case support is added
+        if settings.getBool('dolby_atmos', False):
+            audio_types.append('atmos')
 
-                if settings.getBool('dolby_atmos', False):
-                    scenario += '-atmos'
+        if wv_secure and settings.getBool('dolby_vision', False):
+            video_ranges.append('DOLBY_VISION')
 
-        headers = {'accept': 'application/vnd.media-service+json; version=5', 'authorization': self._cache.get('access_token'), 'x-dss-feature-filtering': 'true'}
+        if wv_secure and settings.getBool('hdr10', False):
+            video_ranges.append('HDR10')
 
+        if settings.getBool('hevc', False):
+            payload['playback']['attributes']['codecs'] = {'video': ['h264', 'h265']}
+
+        if audio_types:
+            payload['playback']['attributes']['audioTypes'] = audio_types
+
+        if video_ranges:
+            payload['playback']['attributes']['videoRanges'] = video_ranges
+
+        if not wv_secure:
+            payload['playback']['attributes']['resolution'] = {'max': ['1280x720']}
+
+        scenario = 'ctr-high' if wv_secure else 'ctr-regular'
         endpoint = playback_url.format(scenario=scenario)
-        playback_data = self._session.get(endpoint, headers=headers).json()
+        playback_data = self._session.post(endpoint, headers=headers, json=payload).json()
         self._check_errors(playback_data)
 
         return playback_data
