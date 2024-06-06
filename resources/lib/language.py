@@ -31,6 +31,9 @@ class Language(BaseLanguage):
     DELETE_WATCHLIST         = 30028
     ADDED_WATCHLIST          = 30029
     ENTER_PIN                = 30030
+    EMAIL_NOT_FOUND          = 30031
+    OTP_INPUT                = 30032
+    DTSX                     = 30033
 
     CONTINUE_WATCHING        = 30042
     NOT_ENTITLED             = 30043
@@ -47,5 +50,6 @@ class Language(BaseLanguage):
     CONTINUE_WATCHING        = 30054
 
     WIDESCREEN               = 21377
+    TRAILER                  = 20410
 
 _ = Language()
