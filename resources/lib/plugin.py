@@ -3,7 +3,7 @@ from base64 import b64decode
 
 from kodi_six import xbmc
 
-from slyguy import plugin, gui, userdata, signals, inputstream, settings
+from slyguy import plugin, gui, userdata, signals, inputstream
 from slyguy.exceptions import PluginError
 from slyguy.constants import KODI_VERSION, NO_RESUME_TAG, ROUTE_RESUME_TAG
 from slyguy.drm import is_wv_secure
@@ -12,6 +12,7 @@ from slyguy.util import async_tasks
 from .api import API
 from .constants import *
 from .language import _
+from .settings import settings
 
 api = API()
 
@@ -358,7 +359,6 @@ def _parse_series(row):
 
     if not item.info['plot']:
         item.context.append((_.FULL_DETAILS, 'RunPlugin({})'.format(plugin.url_for(full_details, series_id=row['encodedSeriesId']))))
-    item.context.append((_.TRAILER, 'RunPlugin({})'.format(item.info['trailer'])))
 
     return item
 
@@ -403,7 +403,6 @@ def _parse_video(row):
     else:
         if not item.info['plot']:
             item.context.append((_.FULL_DETAILS, 'RunPlugin({})'.format(plugin.url_for(full_details, family_id=row['family']['encodedFamilyId']))))
-        item.context.append((_.TRAILER, 'RunPlugin({})'.format(item.info['trailer'])))
         item.context.append((_.EXTRAS, "Container.Update({})".format(plugin.url_for(extras, family_id=row['family']['encodedFamilyId']))))
         item.context.append((_.SUGGESTED, "Container.Update({})".format(plugin.url_for(suggested, family_id=row['family']['encodedFamilyId']))))
 
@@ -892,7 +891,7 @@ def _process_explore(data):
                 item.info['year'] = meta['releaseYearRange']['startYear']
 
             if 'genres' in meta:
-                item.info['genres'] = meta['genres']['values']
+                item.info['genre'] = meta['genres']['values']
 
             if 'ratingInfo' in meta:
                 item.info['rating'] = meta['ratingInfo']['rating']['text']
