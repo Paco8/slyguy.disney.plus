@@ -1,5 +1,6 @@
 from slyguy.settings import CommonSettings
-from slyguy.settings.types import Bool, Enum
+from slyguy.settings.types import Bool, Enum, Action
+from xbmcaddon import Addon
 
 from .language import _
 
@@ -19,6 +20,9 @@ class Settings(CommonSettings):
     SYNC_PLAYBACK = Bool('sync_playback', _.DISNEY_SYNC, default=False)
     DEFAULT_RATIO = Enum('default_ratio', _.DEFAULT_RATIO, default=Ratio.ASK, loop=True,
                     options=[[_.ASK, Ratio.ASK], [_.IMAX, Ratio.IMAX], [_.WIDESCREEN, Ratio.WIDESCREEN]])
+    USE_TTML2SSA = Bool('use_ttml2ssa', default=True, label=Addon('script.module.ttml2ssa').getLocalizedString(32202))
+    SSA_SETTINGS = Action("Addon.OpenSettings(script.module.ttml2ssa)", label=Addon('script.module.ttml2ssa').getLocalizedString(32201))
+
 
 
 settings = Settings()
