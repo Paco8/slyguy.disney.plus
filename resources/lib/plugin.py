@@ -3,7 +3,7 @@ import time
 from base64 import b64decode
 
 import arrow
-from slyguy import plugin, gui, userdata, signals, inputstream
+from slyguy import plugin, gui, userdata, signals, inputstream, monitor
 from slyguy.exceptions import PluginError
 from slyguy.constants import KODI_VERSION, NO_RESUME_TAG, ROUTE_RESUME_TAG
 from slyguy.drm import is_wv_secure
@@ -872,6 +872,7 @@ def _play(family_id=None, content_id=None, deeplink_id=None, channel_id=None, **
 @plugin.route()
 def login(**kwargs):
     options = [
+#       [_.DEVICE_CODE, _device_code],
         [_.EMAIL_PASSWORD, _email_password],
     ]
 
@@ -881,6 +882,20 @@ def login(**kwargs):
 
     _select_profile()
     gui.refresh()
+
+
+# def _device_code():
+#     code = api.device_code()
+#     timeout = 600
+
+#     with gui.progress(_(_.DEVICE_LINK_STEPS, code=code, url=DEVICE_CODE_URL), heading=_.DEVICE_CODE) as progress:
+#         for i in range(timeout):
+#             if progress.iscanceled() or monitor.waitForAbort(1):
+#                 return
+
+#             progress.update(int((i / float(timeout)) * 100))
+#             if i % 5 == 0 and api.device_login(code):
+#                 return True
 
 
 def _email_password():
